@@ -22,6 +22,39 @@
       <h2 class="text-4xl font-bold mb-4">Dashboard Pengambilan ATK</h2>
       <p class="text-lg opacity-90">Pantau pengambilan ATK terbanyak setiap departemen secara real-time.</p>
     </div>
+  <div class="bg-white rounded-3xl shadow-lg p-8 mt-10">
+      <h3 class="text-2xl font-bold text-green-700 mb-6">Histori Pemasukan Stok</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full border border-slate-200 rounded-xl overflow-hidden">
+          <thead class="bg-slate-100">
+            <tr>
+              <th class="p-3 text-left">Tanggal</th>
+              <th class="p-3 text-left">Nama Barang</th>
+              <th class="p-3 text-left">Jumlah Masuk</th>
+            </tr>
+          </thead>
+          <tbody id="tabelHistoriMasuk"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-lg p-8 mt-10">
+      <h3 class="text-2xl font-bold text-red-700 mb-6">Histori Pengeluaran Stok</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full border border-slate-200 rounded-xl overflow-hidden">
+          <thead class="bg-slate-100">
+            <tr>
+              <th class="p-3 text-left">Tanggal</th>
+              <th class="p-3 text-left">Nama Barang</th>
+              <th class="p-3 text-left">Jumlah Keluar</th>
+              <th class="p-3 text-left">Pengambil</th>
+              <th class="p-3 text-left">Departemen</th>
+            </tr>
+          </thead>
+          <tbody id="tabelHistoriKeluar"></tbody>
+        </table>
+      </div>
+    </div>
   </section>
 
   <section class="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-3 gap-6">
@@ -207,6 +240,8 @@
   <script>
     let barangList = JSON.parse(localStorage.getItem('masterBarang')) || [];
     let karyawanList = JSON.parse(localStorage.getItem('masterKaryawan')) || [];
+    let historiMasuk = JSON.parse(localStorage.getItem('historiMasuk')) || [];
+    let historiKeluar = JSON.parse(localStorage.getItem('historiKeluar')) || [];
 
     function simpanBarang() {
       const kode = document.getElementById('kodeBarang').value;
@@ -410,6 +445,14 @@
 
         barang.stokMasuk = Number(barang.stokMasuk || 0) + jumlahMasuk;
         barang.sisaStok = Number(barang.sisaStok || 0) + jumlahMasuk;
+
+        historiMasuk.push({
+          tanggal: document.getElementById('tanggalMasuk').value,
+          namaBarang,
+          jumlahMasuk
+        });
+
+        localStorage.setItem('historiMasuk', JSON.stringify(historiMasuk));
         berhasil = true;
       }
 
@@ -435,6 +478,7 @@
       updateSelectBarang();
       document.getElementById('tanggalMasuk').value = '';
 
+      tampilkanHistoriMasuk();
       alert('Pemasukan stok berhasil disimpan');
     }
 
@@ -535,6 +579,16 @@
 
         barang.stokKeluar = Number(barang.stokKeluar || 0) + jumlahKeluar;
         barang.sisaStok = Number(barang.sisaStok || 0) - jumlahKeluar;
+
+        historiKeluar.push({
+          tanggal: document.getElementById('tanggalKeluar').value,
+          namaBarang,
+          jumlahKeluar,
+          pengambil: document.getElementById('namaPengambilGlobal').value,
+          departemen: document.getElementById('departemenGlobal').value
+        });
+
+        localStorage.setItem('historiKeluar', JSON.stringify(historiKeluar));
         berhasil = true;
       }
 
@@ -562,6 +616,7 @@
 
       document.getElementById('tanggalKeluar').value = '';
 
+      tampilkanHistoriKeluar();
       alert('Pengeluaran stok berhasil disimpan');
     }
 
@@ -647,11 +702,49 @@
       reader.readAsArrayBuffer(file);
     }
 
+    function tampilkanHistoriMasuk() {
+      const tbody = document.getElementById('tabelHistoriMasuk');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+
+      historiMasuk.forEach(item => {
+        tbody.innerHTML += `
+          <tr class="border-b hover:bg-slate-50">
+            <td class="p-3">${item.tanggal}</td>
+            <td class="p-3">${item.namaBarang}</td>
+            <td class="p-3">${item.jumlahMasuk}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function tampilkanHistoriKeluar() {
+      const tbody = document.getElementById('tabelHistoriKeluar');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+
+      historiKeluar.forEach(item => {
+        tbody.innerHTML += `
+          <tr class="border-b hover:bg-slate-50">
+            <td class="p-3">${item.tanggal}</td>
+            <td class="p-3">${item.namaBarang}</td>
+            <td class="p-3">${item.jumlahKeluar}</td>
+            <td class="p-3">${item.pengambil}</td>
+            <td class="p-3">${item.departemen}</td>
+          </tr>
+        `;
+      });
+    }
+
     window.onload = function () {
       tampilkanBarang();
       tampilkanKaryawan();
       updateSelectBarang();
       updateDatalistKaryawan();
+      tampilkanHistoriMasuk();
+      tampilkanHistoriKeluar();
     }
   </script>
 </body>
