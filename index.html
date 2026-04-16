@@ -1,3 +1,6 @@
+# HTML Lengkap Dengan Fungsi Simpan Master Barang
+
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -44,12 +47,12 @@
     <div class="bg-white rounded-3xl shadow-lg p-8 mb-10">
       <h3 class="text-2xl font-bold text-purple-700 mb-6">Master Data Barang</h3>
       <div class="grid md:grid-cols-2 gap-6">
-        <input type="text" placeholder="Kode Barang" class="w-full border rounded-xl p-3">
-        <input type="text" placeholder="Nama Barang" class="w-full border rounded-xl p-3">
-        <input type="text" placeholder="Kategori Barang" class="w-full border rounded-xl p-3">
-        <input type="number" placeholder="Stok Awal" class="w-full border rounded-xl p-3">
+        <input type="text" id="kodeBarang" placeholder="Kode Barang" class="w-full border rounded-xl p-3">
+        <input type="text" id="namaBarang" placeholder="Nama Barang" class="w-full border rounded-xl p-3">
+        <input type="text" id="kategoriBarang" placeholder="Kategori Barang" class="w-full border rounded-xl p-3">
+        <input type="number" id="stokAwal" placeholder="Stok Awal" class="w-full border rounded-xl p-3">
       </div>
-      <button class="mt-6 bg-purple-700 text-white px-6 py-3 rounded-xl hover:bg-purple-800">
+      <button onclick="simpanBarang()" class="mt-6 bg-purple-700 text-white px-6 py-3 rounded-xl hover:bg-purple-800">
         Simpan Master Barang
       </button>
     </div>
@@ -93,5 +96,42 @@
       </div>
     </div>
   </section>
+
+  <script>
+    let barangList = JSON.parse(localStorage.getItem('masterBarang')) || [];
+
+    function simpanBarang() {
+      const kode = document.getElementById('kodeBarang').value;
+      const nama = document.getElementById('namaBarang').value;
+      const kategori = document.getElementById('kategoriBarang').value;
+      const stok = document.getElementById('stokAwal').value;
+
+      if (!kode || !nama || !kategori || !stok) {
+        alert('Semua data barang harus diisi');
+        return;
+      }
+
+      const barangBaru = {
+        kode,
+        nama,
+        kategori,
+        stok
+      };
+
+      barangList.push(barangBaru);
+
+      localStorage.setItem('masterBarang', JSON.stringify(barangList));
+
+      alert('Master barang berhasil disimpan');
+
+      document.getElementById('kodeBarang').value = '';
+      document.getElementById('namaBarang').value = '';
+      document.getElementById('kategoriBarang').value = '';
+      document.getElementById('stokAwal').value = '';
+
+      console.log(barangList);
+    }
+  </script>
 </body>
 </html>
+```
