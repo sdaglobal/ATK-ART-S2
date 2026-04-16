@@ -118,7 +118,9 @@
             <div id="listPemasukanBarang" class="space-y-4">
               <div class="grid md:grid-cols-2 gap-4 border rounded-2xl p-4 bg-slate-50 pemasukan-item">
                 <div>
-                  <input list="masterBarangList" type="text" class="namaBarangMasuk w-full border rounded-xl p-3" placeholder="Cari Nama Barang">
+                  <select class="namaBarangMasuk w-full border rounded-xl p-3">
+                    <option value="">Pilih Barang</option>
+                  </select>
                 </div>
                 <div>
                   <input type="number" class="jumlahBarangMasuk w-full border rounded-xl p-3" placeholder="Jumlah Masuk">
@@ -126,7 +128,7 @@
               </div>
             </div>
 
-            <datalist id="masterBarangList"></datalist>
+            
 
             <button onclick="tambahBarisPemasukan()" class="w-full bg-slate-600 text-white py-3 rounded-xl hover:bg-slate-700">
               Tambah Barang Lagi
@@ -208,7 +210,7 @@
       localStorage.setItem('masterBarang', JSON.stringify(barangList));
 
       tampilkanBarang();
-      updateDatalistBarang();
+      updateSelectBarang();
       resetFormBarang();
       alert('Master barang berhasil disimpan');
     }
@@ -259,8 +261,7 @@
           </tr>
         `;
 
-      container.appendChild(wrapper);
-    });
+      });
     }
 
     function exportKaryawan() {
@@ -305,23 +306,32 @@
       const wrapper = document.createElement('div');
       wrapper.className = 'grid md:grid-cols-2 gap-4 border rounded-2xl p-4 bg-slate-50 pemasukan-item';
       wrapper.innerHTML = `
-        <div class="grid md:grid-cols-2 gap-4 border rounded-2xl p-4 bg-slate-50 pemasukan-item">
-          <div>
-            <input list="masterBarangList" type="text" class="namaBarangMasuk w-full border rounded-xl p-3" placeholder="Cari Nama Barang">
-          </div>
-          <div>
-            <input type="number" class="jumlahBarangMasuk w-full border rounded-xl p-3" placeholder="Jumlah Masuk">
-          </div>
+        <div>
+          <select class="namaBarangMasuk w-full border rounded-xl p-3">
+            <option value="">Pilih Barang</option>
+          </select>
+        </div>
+        <div>
+          <input type="number" class="jumlahBarangMasuk w-full border rounded-xl p-3" placeholder="Jumlah Masuk">
         </div>
       `;
+
+      container.appendChild(wrapper);
+      updateSelectBarang();
     }
 
-    function updateDatalistBarang() {
-      const datalist = document.getElementById('masterBarangList');
-      datalist.innerHTML = '';
+    function updateSelectBarang() {
+      const semuaSelect = document.querySelectorAll('.namaBarangMasuk');
 
-      barangList.forEach(barang => {
-        datalist.innerHTML += `<option value="${barang.nama}">${barang.nama}</option>`;
+      semuaSelect.forEach(select => {
+        const selectedValue = select.value;
+        select.innerHTML = '<option value="">Pilih Barang</option>';
+
+        barangList.forEach(barang => {
+          select.innerHTML += `<option value="${barang.nama}">${barang.nama} (${barang.satuan})</option>`;
+        });
+
+        select.value = selectedValue;
       });
     }
 
@@ -357,7 +367,9 @@
       document.getElementById('listPemasukanBarang').innerHTML = `
         <div class="grid md:grid-cols-2 gap-4 border rounded-2xl p-4 bg-slate-50 pemasukan-item">
           <div>
-            <input list="masterBarangList" type="text" class="namaBarangMasuk w-full border rounded-xl p-3" placeholder="Cari Nama Barang">
+            <select class="namaBarangMasuk w-full border rounded-xl p-3">
+                    <option value="">Pilih Barang</option>
+                  </select>
           </div>
           <div>
             <input type="number" class="jumlahBarangMasuk w-full border rounded-xl p-3" placeholder="Jumlah Masuk">
@@ -483,7 +495,7 @@
     window.onload = function () {
       tampilkanBarang();
       tampilkanKaryawan();
-      updateDatalistBarang();
+      updateSelectBarang();
     }
   </script>
 </body>
