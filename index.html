@@ -46,12 +46,12 @@
     <div class="max-w-7xl mx-auto px-6 py-4">
       <div class="bg-white rounded-3xl shadow-lg p-4">
         <div class="flex flex-wrap gap-3 justify-center">
-          <a href="#stok-atk-section" class="bg-blue-700 text-white px-5 py-3 rounded-xl hover:bg-blue-800">Stok ATK</a>
-          <a href="#database-barang-section" class="bg-slate-700 text-white px-5 py-3 rounded-xl hover:bg-slate-800">Database Barang</a>
-          <a href="#master-barang-section" class="bg-purple-700 text-white px-5 py-3 rounded-xl hover:bg-purple-800">Master Barang</a>
-          <a href="#master-karyawan-section" class="bg-orange-600 text-white px-5 py-3 rounded-xl hover:bg-orange-700">Master Karyawan</a>
-          <a href="#histori-masuk" class="bg-green-600 text-white px-5 py-3 rounded-xl hover:bg-green-700">Histori Masuk</a>
-          <a href="#histori-keluar" class="bg-red-600 text-white px-5 py-3 rounded-xl hover:bg-red-700">Histori Keluar</a>
+          <button onclick="tampilSection('stok-atk-section')" class="bg-blue-700 text-white px-5 py-3 rounded-xl hover:bg-blue-800">Stok ATK</button>
+          <button onclick="tampilSection('database-barang-section')" class="bg-slate-700 text-white px-5 py-3 rounded-xl hover:bg-slate-800">Database Barang</button>
+          <button onclick="tampilSection('master-barang-section')" class="bg-purple-700 text-white px-5 py-3 rounded-xl hover:bg-purple-800">Master Barang</button>
+          <button onclick="tampilSection('master-karyawan-section')" class="bg-orange-600 text-white px-5 py-3 rounded-xl hover:bg-orange-700">Master Karyawan</button>
+          <button onclick="tampilSection('histori-masuk-section')" class="bg-green-600 text-white px-5 py-3 rounded-xl hover:bg-green-700">Histori Masuk</button>
+          <button onclick="tampilSection('histori-keluar-section')" class="bg-red-600 text-white px-5 py-3 rounded-xl hover:bg-red-700">Histori Keluar</button>
           
         </div>
       </div>
@@ -61,7 +61,7 @@
   <section class="max-w-7xl mx-auto px-6 py-6">
       
     </div>
-    <div id="master-barang-section" class="bg-white rounded-3xl shadow-lg p-8 mb-10 scroll-mt-28 ">
+    <div id="master-barang-section" class="bg-white rounded-3xl shadow-lg p-8 mb-10 scroll-mt-28 hidden">
       <h3 class="text-2xl font-bold text-purple-700 mb-6">Master Data Barang</h3>
       <div class="grid md:grid-cols-2 gap-6">
         <input type="text" id="kodeBarang" placeholder="Kode Barang" class="w-full border rounded-xl p-3">
@@ -86,7 +86,7 @@
       </div>
     </div>
 
-    <div id="master-karyawan-section" class="bg-white rounded-3xl shadow-lg p-8 mb-10 scroll-mt-28 ">
+    <div id="master-karyawan-section" class="bg-white rounded-3xl shadow-lg p-8 mb-10 scroll-mt-28 hidden">
       <h3 class="text-2xl font-bold text-orange-600 mb-6">Master Data Karyawan</h3>
       <div class="grid md:grid-cols-2 gap-6">
         <input type="text" id="namaKaryawan" placeholder="Nama Karyawan" class="w-full border rounded-xl p-3">
@@ -767,17 +767,32 @@
       XLSX.writeFile(workbook, 'histori-pengeluaran.xlsx');
     }
 
-    function scrollToHistoriMasuk() {
-      const target = document.getElementById('histori-masuk');
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
+    function tampilSection(sectionId) {
+      const semuaSection = [
+        'stok-atk-section',
+        'database-barang-section',
+        'master-barang-section',
+        'master-karyawan-section',
+        'histori-masuk-section',
+        'histori-keluar-section'
+      ];
 
-    function scrollToHistoriKeluar() {
-      const target = document.getElementById('histori-keluar');
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
+      semuaSection.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.classList.add('hidden');
+        }
+      });
+
+      document.getElementById('stok-atk-section').classList.remove('hidden');
+      document.getElementById('database-barang-section').classList.remove('hidden');
+
+      if (sectionId !== 'stok-atk-section' && sectionId !== 'database-barang-section') {
+        const target = document.getElementById(sectionId);
+        if (target) {
+          target.classList.remove('hidden');
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
       }
     }
 
@@ -791,7 +806,7 @@
     }
   </script>
   <section class="max-w-7xl mx-auto px-6 pb-10">
-    <div id="histori-masuk-section" class="bg-white rounded-3xl shadow-lg p-8 mt-10 scroll-mt-28">
+    <div id="histori-masuk-section" class="bg-white rounded-3xl shadow-lg p-8 mt-10 scroll-mt-28 hidden">
       <span id="histori-masuk"></span>
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <h3 class="text-2xl font-bold text-green-700">Histori Pemasukan Stok</h3>
@@ -817,7 +832,7 @@
       </div>
     </div>
 
-    <div id="histori-keluar-section" class="bg-white rounded-3xl shadow-lg p-8 mt-10 scroll-mt-28">
+    <div id="histori-keluar-section" class="bg-white rounded-3xl shadow-lg p-8 mt-10 scroll-mt-28 hidden">
       <span id="histori-keluar"></span>
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <h3 class="text-2xl font-bold text-red-700">Histori Pengeluaran Stok</h3>
