@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   </head>
 <body class="min-h-screen bg-slate-100 text-slate-800">
   <header class="bg-blue-700 text-white shadow-lg">
@@ -232,9 +233,54 @@
 
   <script>
     let barangList = JSON.parse(localStorage.getItem('masterBarang')) || [];
-    let karyawanList = JSON.parse(localStorage.getItem('masterKaryawan')) || [];
-    let historiMasuk = JSON.parse(localStorage.getItem('historiMasuk')) || [];
-    let historiKeluar = JSON.parse(localStorage.getItem('historiKeluar')) || [];
+let karyawanList = JSON.parse(localStorage.getItem('masterKaryawan')) || [];
+let historiMasuk = JSON.parse(localStorage.getItem('historiMasuk')) || [];
+let historiKeluar = JSON.parse(localStorage.getItem('historiKeluar')) || [];
+
+const supabaseUrl = 'https://wlnibcoqspxwmylkyolk.supabase.co';
+const supabaseKey = 'sb_publishable_lycr_Pk_EfTZxPmUJ3xsag_isf7AEwS';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+    async function simpanBarangKeSupabase(barang) {
+  const { error } = await supabaseClient
+    .from('master_barang')
+    .insert([{
+      kode: barang.kode,
+      nama: barang.nama,
+      kategori: barang.kategori,
+      satuan: barang.satuan,
+      stok_awal: barang.stokAwal,
+      stok_masuk: barang.stokMasuk,
+      stok_keluar: barang.stokKeluar,
+      sisa_stok: barang.sisaStok
+    }]);
+
+  if (error) {
+    console.log('Gagal simpan barang:', error);
+  }
+}
+
+async function loadBarangDariSupabase() {
+  const { data, error } = await supabaseClient
+    .from('master_barang')
+    .select('*');
+
+  if (!error && data) {
+    barangList = data.map(item => ({
+      kode: item.kode,
+      nama: item.nama,
+      kategori: item.kategori,
+      satuan: item.satuan,
+      stokAwal: item.stok_awal,
+      stokMasuk: item.stok_masuk,
+      stokKeluar: item.stok_keluar,
+      sisaStok: item.sisa_stok
+    }));
+
+    tampilkanBarang();
+    updateSelectBarang();
+    updateAtkTerbanyak();
+  }
+}
 
     function simpanBarang() {
       const kode = document.getElementById('kodeBarang').value;
@@ -260,7 +306,8 @@
       };
 
       barangList.push(barangBaru);
-      localStorage.setItem('masterBarang', JSON.stringify(barangList));
+localStorage.setItem('masterBarang', JSON.stringify(barangList));
+simpanBarangKeSupabase(barangBaru);
 
       tampilkanBarang();
       updateSelectBarang();
@@ -1072,7 +1119,7 @@ window.onload = function () {
   tampilkanKaryawan();
   updateSelectBarang();
 updateDatalistKaryawan();
-loadMasterBarangDariExcel();
+loadBarangDariSupabase();
 loadMasterKaryawanDariExcel();
 
 setTimeout(() => {
