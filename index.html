@@ -1046,10 +1046,15 @@ function loadMasterKaryawanDariExcel() {
       const importedData = XLSX.utils.sheet_to_json(worksheet);
 
       karyawanList = importedData;
-      localStorage.setItem('masterKaryawan', JSON.stringify(karyawanList));
+localStorage.setItem('masterKaryawan', JSON.stringify(karyawanList));
 
-      tampilkanKaryawan();
-      updateDatalistKaryawan();
+tampilkanKaryawan();
+updateDatalistKaryawan();
+isiDepartemenOtomatis();
+
+setTimeout(() => {
+  updateDatalistKaryawan();
+}, 500);
     })
     .catch(error => {
       console.log('Master karyawan tidak otomatis dimuat:', error);
@@ -1069,6 +1074,12 @@ window.onload = function () {
 updateDatalistKaryawan();
 loadMasterBarangDariExcel();
 loadMasterKaryawanDariExcel();
+
+setTimeout(() => {
+  updateDatalistKaryawan();
+  updateSelectBarang();
+}, 1000);
+
 tampilkanHistoriMasuk();
 tampilkanHistoriKeluar();
 renderGrafikPengeluaran();
