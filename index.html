@@ -1114,8 +1114,11 @@ function renderGrafikPengeluaran() {
   });
 
   const bulanFilter = document.getElementById('filterGrafikBulan')?.value || '';
+  const historiKeluarFiltered = historiKeluar.filter(item => {
+  return !bulanFilter || item.tanggal.startsWith(bulanFilter);
+});
 
-historiKeluar.forEach(item => {
+historiKeluarFiltered.forEach(item => {
   const cocokBulan = !bulanFilter || item.tanggal.startsWith(bulanFilter);
 
   if (!cocokBulan) return;
@@ -1131,6 +1134,93 @@ historiKeluar.forEach(item => {
 
   const labels = Object.keys(dataDepartemen);
   const values = Object.values(dataDepartemen);
+  const totalKeluar = historiKeluarFiltered.reduce((total, item) => {
+  return total + Number(item.jumlahKeluar || 0);
+}, 0);
+
+const totalPengambilanElement = document.getElementById('totalPengambilan');
+
+if (totalPengambilanElement) {
+  totalPengambilanElement.textContent = totalKeluar + ' Item';
+}
+
+const departemenCount = {};
+let totalSemuaDepartemen = 0;
+
+historiKeluarFiltered.forEach(item => {
+  const departemen = item.departemen || 'Tidak Diketahui';
+  const jumlah = Number(item.jumlahKeluar || 0);
+
+  if (!departemenCount[departemen]) {
+    departemenCount[departemen] = 0;
+  }
+
+  departemenCount[departemen] += jumlah;
+  totalSemuaDepartemen += jumlah;
+});
+
+let departemenTerbanyak = '-';
+let jumlahDepartemenTerbanyak = 0;
+
+Object.entries(departemenCount).forEach(([departemen, total]) => {
+  if (total > jumlahDepartemenTerbanyak) {
+    jumlahDepartemenTerbanyak = total;
+    departemenTerbanyak = departemen;
+  }
+});
+
+const persenDepartemen =
+  totalSemuaDepartemen > 0
+    ? ((jumlahDepartemenTerbanyak / totalSemuaDepartemen) * 100).toFixed(1)
+    : 0;
+
+const departemenElement = document.getElementById('departemenTerbanyak');
+
+if (departemenElement) {
+  departemenElement.innerHTML = `
+    ${departemenTerbanyak}<br>
+    <span class="text-lg text-slate-500">${persenDepartemen}%</span>
+  `;
+}
+
+const atkCount = {};
+
+historiKeluarFiltered.forEach(item => {
+  const namaBarang = item.namaBarang || '-';
+  const jumlahKeluar = Number(item.jumlahKeluar || 0);
+
+  if (!atkCount[namaBarang]) {
+    atkCount[namaBarang] = 0;
+  }
+
+  atkCount[namaBarang] += jumlahKeluar;
+});
+
+let atkTerbanyak = '-';
+let jumlahAtkTerbanyak = 0;
+
+Object.entries(atkCount).forEach(([namaBarang, total]) => {
+  if (total > jumlahAtkTerbanyak) {
+    jumlahAtkTerbanyak = total;
+    atkTerbanyak = namaBarang;
+  }
+});
+
+const totalAtk = Object.values(atkCount).reduce((a, b) => a + b, 0);
+
+const persenAtk =
+  totalAtk > 0
+    ? ((jumlahAtkTerbanyak / totalAtk) * 100).toFixed(1)
+    : 0;
+
+const atkElement = document.getElementById('atkTerbanyak');
+
+if (atkElement) {
+  atkElement.innerHTML = `
+    ${atkTerbanyak}<br>
+    <span class="text-lg text-slate-500">${persenAtk}%</span>
+  `;
+}
 
   if (window.grafikPengeluaranChart) {
     window.grafikPengeluaranChart.destroy();
@@ -1204,6 +1294,7 @@ scales: {
 
 function updateDepartemenTerbanyak() {
   const departemenCount = {};
+  let totalSemua = 0;
 
   historiKeluar.forEach(item => {
     const departemen = item.departemen || 'Tidak Diketahui';
@@ -1214,6 +1305,7 @@ function updateDepartemenTerbanyak() {
     }
 
     departemenCount[departemen] += jumlah;
+    totalSemua += jumlah;
   });
 
   let departemenTerbanyak = '-';
@@ -1226,13 +1318,21 @@ function updateDepartemenTerbanyak() {
     }
   });
 
+  const persen =
+    totalSemua > 0
+      ? ((jumlahTerbanyak / totalSemua) * 100).toFixed(1)
+      : 0;
+
   const element = document.getElementById('departemenTerbanyak');
 
   if (element) {
-    element.textContent = departemenTerbanyak;
+    element.innerHTML = `
+      ${departemenTerbanyak}<br>
+      <span class="text-lg text-slate-500">${persen}%</span>
+    `;
   }
 }
-function updateAtkTerbanyak() {
+  function updateAtkTerbanyak() {
   const atkCount = {};
 
   historiKeluar.forEach(item => {
