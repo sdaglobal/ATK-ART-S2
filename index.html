@@ -351,11 +351,29 @@ async function loadBarangDariSupabase() {
   if (!error && data) {
   barangList = data.map(item => {
     const stokMasukAktual = historiMasuk
-      .filter(histori => histori.namaBarang === item.nama)
+      .filter(histori => {
+  const namaHistori = histori.namaBarang.trim().toLowerCase();
+  const namaBarang = item.nama.trim().toLowerCase();
+
+  return (
+    namaHistori === namaBarang ||
+    namaHistori.includes(namaBarang) ||
+    namaBarang.includes(namaHistori)
+  );
+})
       .reduce((total, histori) => total + Number(histori.jumlahMasuk || 0), 0);
 
     const stokKeluarAktual = historiKeluar
-      .filter(histori => histori.namaBarang === item.nama)
+      .filter(histori => {
+  const namaHistori = histori.namaBarang.trim().toLowerCase();
+  const namaBarang = item.nama.trim().toLowerCase();
+
+  return (
+    namaHistori === namaBarang ||
+    namaHistori.includes(namaBarang) ||
+    namaBarang.includes(namaHistori)
+  );
+})
       .reduce((total, histori) => total + Number(histori.jumlahKeluar || 0), 0);
 
     const sisaStokAktual =
