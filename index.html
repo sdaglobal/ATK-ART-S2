@@ -284,7 +284,7 @@ console.log('Error Supabase:', error);
   }
 }
 
-    function simpanBarang() {
+    async function simpanBarang() {
       const kode = document.getElementById('kodeBarang').value;
       const nama = document.getElementById('namaBarang').value;
       const kategori = document.getElementById('kategoriBarang').value;
@@ -309,12 +309,14 @@ console.log('Error Supabase:', error);
 
       barangList.push(barangBaru);
 localStorage.setItem('masterBarang', JSON.stringify(barangList));
-simpanBarangKeSupabase(barangBaru);
 
-      tampilkanBarang();
-      updateSelectBarang();
-      resetFormBarang();
-      alert('Master barang berhasil disimpan');
+await simpanBarangKeSupabase(barangBaru);
+await loadBarangDariSupabase();
+
+tampilkanBarang();
+updateSelectBarang();
+resetFormBarang();
+alert('Master barang berhasil disimpan');
     }
 
     function simpanKaryawan() {
