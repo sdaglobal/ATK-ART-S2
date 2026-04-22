@@ -349,21 +349,42 @@ async function loadBarangDariSupabase() {
   console.log('Error Supabase:', error);
 
   if (!error && data) {
-    barangList = data.map(item => ({
+  barangList = data.map(item => {
+    const stokMasukAktual = historiMasuk
+      .filter(histori => histori.namaBarang === item.nama)
+      .reduce((total, histori) => total + Number(histori.jumlahMasuk || 0), 0);
+
+    const stokKeluarAktual = historiKeluar
+      .filter(histori => histori.namaBarang === item.nama)
+      .reduce((total, histori) => total + Number(histori.jumlahKeluar || 0), 0);
+
+    const sisaStokAktual =
+      Number(item.stok_awal || 0) +
+      stokMasukAktual -
+      stokKeluarAktual;
+
+    return {
       kode: item.kode,
       nama: item.nama,
       kategori: item.kategori,
       satuan: item.satuan,
-      stokAwal: item.stok_awal,
-      stokMasuk: item.stok_masuk,
-      stokKeluar: item.stok_keluar,
-      sisaStok: item.sisa_stok
-    }));
+      stokAwal: Number(item.stok_awal || 0),
+      stokMasuk: stokMasukAktual,
+      stokKeluar: stokKeluarAktual,
+      sisaStok: sisaStokAktual
+    };
+  });
 
-    tampilkanBarang();
-    updateSelectBarang();
-    updateAtkTerbanyak();
+  for (const barang of barangList) {
+    await updateBarangKeSupabase(barang);
   }
+
+  localStorage.setItem('masterBarang', JSON.stringify(barangList));
+
+  tampilkanBarang();
+  updateSelectBarang();
+  updateAtkTerbanyak();
+}
 }
     async function loadHistoriMasukDariSupabase() {
   const { data, error } = await supabaseClient
