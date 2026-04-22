@@ -820,8 +820,7 @@ alert('Pengeluaran stok berhasil disimpan');
       const keyword = document.getElementById('searchBarang') ? document.getElementById('searchBarang').value.toLowerCase() : '';
 
       tbody.innerHTML = '';
-
-      let totalKeluar = 0;
+      
       let nomor = 1;
 
       barangList.forEach((barang) => {
@@ -832,8 +831,7 @@ alert('Pengeluaran stok berhasil disimpan');
           barang.satuan.toLowerCase().includes(keyword);
 
         if (!cocok) return;
-        totalKeluar += barang.stokKeluar;
-
+        
         tbody.innerHTML += `
           <tr class="border-b hover:bg-slate-50 text-slate-800">
             <td class="p-3">${nomor++}</td>
@@ -849,7 +847,11 @@ alert('Pengeluaran stok berhasil disimpan');
         `;
       });
 
-      totalPengambilan.textContent = totalKeluar + ' Item';
+      const totalKeluar = historiKeluar.reduce((total, item) => {
+  return total + Number(item.jumlahKeluar || 0);
+}, 0);
+
+totalPengambilan.textContent = totalKeluar + ' Item';
     }
 
     function resetFormBarang() {
@@ -1227,18 +1229,18 @@ function updateDepartemenTerbanyak() {
     element.textContent = departemenTerbanyak;
   }
 }
-
 function updateAtkTerbanyak() {
   const atkCount = {};
 
-  barangList.forEach(barang => {
-    const jumlahKeluar = Number(barang.stokKeluar || 0);
+  historiKeluar.forEach(item => {
+    const namaBarang = item.namaBarang || '-';
+    const jumlahKeluar = Number(item.jumlahKeluar || 0);
 
-    if (!atkCount[barang.nama]) {
-      atkCount[barang.nama] = 0;
+    if (!atkCount[namaBarang]) {
+      atkCount[namaBarang] = 0;
     }
 
-    atkCount[barang.nama] += jumlahKeluar;
+    atkCount[namaBarang] += jumlahKeluar;
   });
 
   let atkTerbanyak = '-';
@@ -1257,7 +1259,7 @@ function updateAtkTerbanyak() {
     element.textContent = atkTerbanyak;
   }
 }
-
+    
 function loadMasterBarangDariExcel() {
   fetch('master-barang.xlsx')
     .then(response => {
