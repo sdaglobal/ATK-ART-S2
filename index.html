@@ -1083,14 +1083,21 @@ setTimeout(async () => {
         if (!cocokKeyword || !cocokBulan) return;
 
         tbody.innerHTML += `
-          <tr class="border-b hover:bg-slate-50 text-slate-800">
-            <td class="p-3">${item.tanggal}</td>
-            <td class="p-3">${item.namaBarang}</td>
-            <td class="p-3">${item.jumlahKeluar}</td>
-            <td class="p-3">${item.pengambil}</td>
-            <td class="p-3">${item.departemen}</td>
-          </tr>
-        `;
+<tr>
+  <td class="p-3">${item.tanggal}</td>
+  <td class="p-3">${item.namaBarang}</td>
+  <td class="p-3">${item.jumlahKeluar}</td>
+  <td class="p-3">${item.pengambil}</td>
+  <td class="p-3">${item.departemen}</td>
+
+  <td class="p-3">
+    <button onclick="hapusHistoriKeluar(${index})"
+      class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+      Hapus
+    </button>
+  </td>
+</tr>
+`;
       });
     }
 
@@ -1105,34 +1112,39 @@ setTimeout(async () => {
 }
 
 async function hapusHistoriKeluar(index) {
-  const histori = historiKeluar[index];
+  if (!confirm("Yakin ingin menghapus data ini?")) return;
 
-  historiKeluar.splice(index, 1);
-  localStorage.setItem('historiKeluar', JSON.stringify(historiKeluar));
+  const data = historiKeluar[index];
 
-  const barang = barangList.find(b => b.nama === histori.namaBarang);
+  try {
+    await supabaseClient
+      .from('histori_keluar')
+      .delete()
+      .match({
+        tanggal: data.tanggal,
+        nama_barang: data.namaBarang,
+        jumlah_keluar: data.jumlahKeluar,
+        pengambil: data.pengambil
+      });
 
-  if (barang) {
-    barang.stokKeluar = Math.max(
-      0,
-      Number(barang.stokKeluar || 0) - Number(histori.jumlahKeluar || 0)
-    );
+    historiKeluar.splice(index, 1);
+    localStorage.setItem('historiKeluar', JSON.stringify(historiKeluar));
 
-    barang.sisaStok =
-      Number(barang.stokAwal || 0) +
-      Number(barang.stokMasuk || 0) -
-      Number(barang.stokKeluar || 0);
+    await loadHistoriKeluarDariSupabase();
+    await loadBarangDariSupabase();
 
-    await updateBarangKeSupabase(barang);
+    alert("Data berhasil dihapus");
+
+    tampilkanBarang();
+    tampilkanHistoriKeluar();
+    renderGrafikPengeluaran();
+    updateDepartemenTerbanyak();
+    updateAtkTerbanyak();
+
+  } catch (err) {
+    alert("Gagal hapus data");
+    console.log(err);
   }
-
-  localStorage.setItem('masterBarang', JSON.stringify(barangList));
-
-  tampilkanBarang();
-  tampilkanHistoriKeluar();
-  renderGrafikPengeluaran();
-  updateDepartemenTerbanyak();
-  updateAtkTerbanyak();
 }
       
 function tampilSection(sectionId) {
@@ -1697,6 +1709,7 @@ updateSisaStokRealtime();
               <th class="p-3 text-left">Jumlah Keluar</th>
               <th class="p-3 text-left">Pengambil</th>
               <th class="p-3 text-left">Departemen</th>
+              <th class="p-3 text-left">Hapus</th>
             </tr>
           </thead>
           <tbody id="tabelHistoriKeluar" class="text-slate-800"></tbody>
