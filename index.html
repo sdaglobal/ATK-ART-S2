@@ -356,28 +356,20 @@ async function loadBarangDariSupabase() {
   if (!error && data) {
   barangList = data.map(item => {
     const stokMasukAktual = historiMasuk
-      .filter(histori => {
-  const namaHistori = histori.namaBarang.trim().toLowerCase();
-  const namaBarang = item.nama.trim().toLowerCase();
+  .filter(histori => {
+    const namaHistori = histori.namaBarang.trim().toLowerCase();
+    const namaBarang = item.nama.trim().toLowerCase();
 
-  return (
-    namaHistori === namaBarang ||
-    namaHistori.includes(namaBarang) ||
-    namaBarang.includes(namaHistori)
-  );
+    return namaHistori === namaBarang;
 })
       .reduce((total, histori) => total + Number(histori.jumlahMasuk || 0), 0);
 
     const stokKeluarAktual = historiKeluar
-      .filter(histori => {
-  const namaHistori = histori.namaBarang.trim().toLowerCase();
-  const namaBarang = item.nama.trim().toLowerCase();
+  .filter(histori => {
+    const namaHistori = histori.namaBarang.trim().toLowerCase();
+    const namaBarang = item.nama.trim().toLowerCase();
 
-  return (
-    namaHistori === namaBarang ||
-    namaHistori.includes(namaBarang) ||
-    namaBarang.includes(namaHistori)
-  );
+    return namaHistori === namaBarang;
 })
       .reduce((total, histori) => total + Number(histori.jumlahKeluar || 0), 0);
 
@@ -655,16 +647,9 @@ jumlahBarangInputs.forEach(input => {
           continue;
         }
 
-        const barang = barangList.find(item => {
-          const namaMaster = item.nama.trim().toLowerCase();
-          const namaInput = namaBarang.trim().toLowerCase();
-
-          return (
-            namaMaster === namaInput ||
-            namaInput.includes(namaMaster) ||
-            namaMaster.includes(namaInput)
-          );
-        });
+        const barang = barangList.find(item =>
+  item.nama.trim().toLowerCase() === namaBarang.trim().toLowerCase()
+);
 
         if (!barang) {
           continue;
@@ -816,16 +801,9 @@ simpanHistoriMasukKeSupabase(dataMasuk);
           continue;
         }
 
-        const barang = barangList.find(item => {
-          const namaMaster = item.nama.trim().toLowerCase();
-          const namaInput = namaBarang.trim().toLowerCase();
-
-          return (
-            namaMaster === namaInput ||
-            namaInput.includes(namaMaster) ||
-            namaMaster.includes(namaInput)
-          );
-        });
+        const barang = barangList.find(item =>
+  item.nama.trim().toLowerCase() === namaBarang.trim().toLowerCase()
+);
 
         if (!barang) {
           continue;
