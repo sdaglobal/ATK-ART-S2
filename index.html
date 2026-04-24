@@ -1580,23 +1580,19 @@ const jumlahFix = row.querySelector('.jumlahBarangKeluar');
   return;
 }
       if (!jumlahFix.value) {
-    const kode = ambilKodeBarang(nama);
-if (!kode) {
-  sisaInput.value = '';
-  return;
-}
-
-const barang = barangList.find(item => item.kode === kode);
-if (!barang) {
-  sisaInput.value = '';
-  return;
-}
-
-  if (barang) {
-    sisaInput.value = barang.sisaStok;
-  } else {
-    sisaInput.value = '';
+  const kode = ambilKodeBarang(nama);
+  if (!kode) {
+    sisaInput.value = '0';
+    return;
   }
+
+  const barang = barangList.find(item => item.kode === kode);
+  if (!barang) {
+    sisaInput.value = '0';
+    return;
+  }
+
+  sisaInput.value = Number(barang.sisaStok || 0);
   return;
 }
 
@@ -1629,14 +1625,16 @@ const barang = barangList.find(item =>
 
       const sisa = Number(barang.sisaStok || 0) - jumlah;
 
-      if (sisa < 0) {
-        sisaInput.value = 'Stok kurang!';
-        jumlahFix.classList.add('border-red-500');
-      } else {
-        sisaInput.value = sisa;
-        jumlahFix.classList.remove('border-red-500');
-      }
-    }
+if (sisa < 0) {
+  sisaInput.value = 'Stok kurang!';
+  jumlahFix.classList.add('border-red-500');
+} else if (sisa === 0) {
+  sisaInput.value = '0';
+  jumlahFix.classList.remove('border-red-500');
+} else {
+  sisaInput.value = sisa;
+  jumlahFix.classList.remove('border-red-500');
+}
 
 namaFix.oninput = hitung;
 namaFix.onchange = hitung;
