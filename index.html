@@ -369,17 +369,23 @@ async function loadBarangDariSupabase() {
 
   if (!error && data) {
   barangList = data.map(item => {
-    const stokMasukAktual = (historiMasuk || []).filter(histori => {
-  const namaHistori = histori.namaBarang.trim().toLowerCase();
-  const namaBarang = item.nama.trim().toLowerCase();
-  return namaHistori === namaBarang;
-}).reduce((total, histori) => total + Number(histori.jumlahMasuk || 0), 0);
+    const stokMasukAktual = historiMasuk
+  .filter(histori => {
+    const namaHistori = histori.namaBarang.trim().toLowerCase();
+    const namaBarang = item.nama.trim().toLowerCase();
 
-const stokKeluarAktual = (historiKeluar || []).filter(histori => {
-  const namaHistori = histori.namaBarang.trim().toLowerCase();
-  const namaBarang = item.nama.trim().toLowerCase();
-  return namaHistori === namaBarang;
-}).reduce((total, histori) => total + Number(histori.jumlahKeluar || 0), 0);
+    return namaHistori === namaBarang;
+})
+      .reduce((total, histori) => total + Number(histori.jumlahMasuk || 0), 0);
+
+    const stokKeluarAktual = historiKeluar
+  .filter(histori => {
+    const namaHistori = histori.namaBarang.trim().toLowerCase();
+    const namaBarang = item.nama.trim().toLowerCase();
+
+    return namaHistori === namaBarang;
+})
+      .reduce((total, histori) => total + Number(histori.jumlahKeluar || 0), 0);
 
     const sisaStokAktual =
       Number(item.stok_awal || 0) +
@@ -1778,38 +1784,46 @@ setTimeout(() => {
     });
 }
 
-window.onload = async function () {
+window.onload = function () {
   document.getElementById('stok-atk-section').classList.add('hidden');
   document.getElementById('database-barang-section').classList.add('hidden');
   document.getElementById('master-barang-section').classList.add('hidden');
   document.getElementById('master-karyawan-section').classList.add('hidden');
   document.getElementById('histori-masuk-section').classList.add('hidden');
   document.getElementById('histori-keluar-section').classList.add('hidden');
+  tampilkanBarang();
+  tampilkanKaryawan();
+  updateSelectBarang();
+updateDatalistKaryawan();
+loadKaryawanDariSupabase();
 
-  try {
-    // 🔥 URUTAN BENAR (INI KUNCI)
-    await loadBarangDariSupabase();
-    await loadKaryawanDariSupabase();
-    await loadHistoriMasukDariSupabase();
-    await loadHistoriKeluarDariSupabase();
+Promise.all([
+  loadHistoriMasukDariSupabase(),
+  loadHistoriKeluarDariSupabase()
+]).then(async () => {
+  await loadBarangDariSupabase();
 
-    tampilkanBarang();
-    tampilkanKaryawan();
-    updateSelectBarang();
-    updateDatalistKaryawan();
-    tampilkanHistoriMasuk();
-    tampilkanHistoriKeluar();
+    requestAnimationFrame(() => {
+    updateSisaStokRealtime();
+  });
+});
 
-    renderGrafikPengeluaran();
-    updateDepartemenTerbanyak();
-    updateAtkTerbanyak();
+setTimeout(() => {
+  updateDatalistKaryawan();
+  updateSelectBarang();
 
-    requestAnimationFrame(updateSisaStokRealtime);
+  requestAnimationFrame(() => {
+    updateSisaStokRealtime();
+  });
 
-  } catch (err) {
-    console.log('ERROR LOAD DATA:', err);
-  }
-};
+}, 1000);
+
+tampilkanHistoriMasuk();
+tampilkanHistoriKeluar();
+renderGrafikPengeluaran();
+updateDepartemenTerbanyak();
+updateAtkTerbanyak();
+}
   </script>
   <section class="max-w-7xl mx-auto px-6 pb-10">
     <div id="histori-masuk-section" class="bg-white rounded-3xl shadow-lg p-8 mt-10 scroll-mt-28 hidden">
