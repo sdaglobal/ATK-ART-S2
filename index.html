@@ -220,7 +220,21 @@ class="bg-indigo-600 text-white px-5 py-3 rounded-xl hover:bg-indigo-700">
     <div id="database-barang-section" class="bg-white rounded-3xl shadow-lg p-8 mt-10 scroll-mt-28">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <h3 class="text-2xl font-bold text-slate-700">Database Stok Barang</h3>
-        <input type="text" id="searchBarang" placeholder="Cari kode, nama barang, kategori, atau satuan" class="border rounded-xl px-4 py-3 w-full md:w-96" onkeyup="tampilkanBarang()">
+        <div class="flex flex-wrap gap-3 items-center">
+  <input type="text" id="searchBarang"
+    placeholder="Cari kode, nama barang, kategori, atau satuan"
+    class="border rounded-xl px-4 py-3 w-full md:w-80"
+    onkeyup="tampilkanBarang()">
+
+  <select id="filterStok"
+    class="border rounded-xl px-4 py-3"
+    onchange="tampilkanBarang()">
+    <option value="">Semua Stok</option>
+    <option value="habis">Stok Habis (0)</option>
+    <option value="menipis">Stok Menipis (<=5)</option>
+    <option value="tersedia">Stok Aman (>5)</option>
+  </select>
+</div>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full border border-slate-200 rounded-xl overflow-hidden">
@@ -956,45 +970,61 @@ updateAtkTerbanyak();
 alert('Pengeluaran stok berhasil disimpan');
 }
 
-    function tampilkanBarang() {
-      const tbody = document.getElementById('tabelBarang');
-      const totalPengambilan = document.getElementById('totalPengambilan');
-      const keyword = document.getElementById('searchBarang') ? document.getElementById('searchBarang').value.toLowerCase() : '';
+function tampilkanBarang() {
+  const tbody = document.getElementById('tabelBarang');
+  const totalPengambilan = document.getElementById('totalPengambilan');
 
-      tbody.innerHTML = '';
-      
-      let nomor = 1;
+  const keyword = document.getElementById('searchBarang')
+    ? document.getElementById('searchBarang').value.toLowerCase()
+    : '';
 
-      barangList.forEach((barang) => {
-        const cocok =
-          barang.kode.toLowerCase().includes(keyword) ||
-          barang.nama.toLowerCase().includes(keyword) ||
-          barang.kategori.toLowerCase().includes(keyword) ||
-          barang.satuan.toLowerCase().includes(keyword);
+  const filterStok = document.getElementById('filterStok')
+    ? document.getElementById('filterStok').value
+    : '';
 
-        if (!cocok) return;
-        
-        tbody.innerHTML += `
-          <tr class="border-b hover:bg-slate-50 text-slate-800">
-            <td class="p-3">${nomor++}</td>
-            <td class="p-3">${barang.kode}</td>
-            <td class="p-3">${barang.nama}</td>
-            <td class="p-3">${barang.kategori}</td>
-            <td class="p-3">${barang.satuan}</td>
-            <td class="p-3 text-green-600 font-bold">${barang.stokAwal}</td>
-            <td class="p-3 text-blue-600 font-bold">${barang.stokMasuk}</td>
-            <td class="p-3 text-red-600 font-bold">${barang.stokKeluar}</td>
-            <td class="p-3 text-purple-700 font-bold">${barang.sisaStok}</td>
-          </tr>
-        `;
-      });
+  tbody.innerHTML = '';
+  let nomor = 1;
 
-      const totalKeluar = historiKeluar.reduce((total, item) => {
-  return total + Number(item.jumlahKeluar || 0);
-}, 0);
+  barangList.forEach((barang) => {
+    const cocok =
+      barang.kode.toLowerCase().includes(keyword) ||
+      barang.nama.toLowerCase().includes(keyword) ||
+      barang.kategori.toLowerCase().includes(keyword) ||
+      barang.satuan.toLowerCase().includes(keyword);
 
-totalPengambilan.textContent = totalKeluar + ' Item';
-    }
+    if (!cocok) return;
+
+    // FILTER SISA STOK
+    if (filterStok === 'habis' && barang.sisaStok !== 0) return;
+    if (filterStok === 'menipis' && barang.sisaStok > 5) return;
+    if (filterStok === 'tersedia' && barang.sisaStok <= 5) return;
+
+    // WARNA OTOMATIS
+    let warnaStok = 'text-green-600';
+    if (barang.sisaStok == 0) warnaStok = 'text-red-600';
+    else if (barang.sisaStok <= 5) warnaStok = 'text-orange-500';
+
+    tbody.innerHTML += `
+      <tr class="border-b hover:bg-slate-50 text-slate-800">
+        <td class="p-3">${nomor++}</td>
+        <td class="p-3">${barang.kode}</td>
+        <td class="p-3">${barang.nama}</td>
+        <td class="p-3">${barang.kategori}</td>
+        <td class="p-3">${barang.satuan}</td>
+        <td class="p-3 text-green-600 font-bold">${barang.stokAwal}</td>
+        <td class="p-3 text-blue-600 font-bold">${barang.stokMasuk}</td>
+        <td class="p-3 text-red-600 font-bold">${barang.stokKeluar}</td>
+        <td class="p-3 font-bold ${warnaStok}">${barang.sisaStok}</td>
+      </tr>
+    `;
+  });
+
+  const totalKeluar = historiKeluar.reduce((total, item) => {
+    return total + Number(item.jumlahKeluar || 0);
+  }, 0);
+
+  totalPengambilan.textContent = totalKeluar + ' Item';
+}
 
     function resetFormBarang() {
       document.getElementById('kodeBarang').value = '';
