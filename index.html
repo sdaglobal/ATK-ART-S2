@@ -1137,11 +1137,21 @@ setTimeout(async () => {
 
         tbody.innerHTML += `
 <tr class="border-b hover:bg-slate-50 text-slate-800">
-  <td class="p-3">${item.tanggal}</td>
+  <td class="p-3">
+  ${new Date(item.tanggal).toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  })}
+</td>
   <td class="p-3">${item.namaBarang}</td>
   <td class="p-3">${item.supplier || '-'}</td>
   <td class="p-3">${item.nomorBTB || '-'}</td>
-  <td class="p-3">${item.jumlahMasuk}</td>
+  <td class="p-3">
+  ${item.jumlahMasuk} ${
+    barangList.find(b => b.nama === item.namaBarang)?.satuan || ''
+  }
+</td>
   <td class="p-3">
     <button onclick="hapusHistoriMasuk(${index})"
       class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
@@ -1219,9 +1229,19 @@ async function hapusHistoriMasuk(index) {
 
         tbody.innerHTML += `
 <tr>
-  <td class="p-3">${item.tanggal}</td>
+  <td class="p-3">
+  ${new Date(item.tanggal).toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  })}
+</td>
   <td class="p-3">${item.namaBarang}</td>
-  <td class="p-3">${item.jumlahKeluar}</td>
+  <td class="p-3">
+  ${item.jumlahKeluar} ${
+    barangList.find(b => b.nama === item.namaBarang)?.satuan || ''
+  }
+</td>
   <td class="p-3">${item.pengambil}</td>
   <td class="p-3">${item.departemen}</td>
 
